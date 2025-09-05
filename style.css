@@ -1,70 +1,41 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background: #f4fdf7;
-  color: #222;
+  padding: 0;
+  background: #f5f5f5;
 }
-
 header {
-  padding: 1rem;
-  background: #2e7d32;
+  background: #004d26;
   color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 1rem;
+  text-align: center;
 }
-
-h1 {
-  font-size: 1.2rem;
-}
-
 #careerSelect {
+  margin-top: 1rem;
   padding: 0.5rem;
   font-size: 1rem;
-  border-radius: 6px;
-  border: none;
 }
-
-#gridContainer {
+#malla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
   padding: 1rem;
 }
-
-.card {
+.materia {
+  border-radius: 10px;
   padding: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  background: #e8f5e9;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.card:hover {
-  transform: scale(1.03);
-}
-
-.card.locked {
-  background: #c8e6c9;
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.card.approved {
-  background: #66bb6a;
-  color: white;
-}
-
-/* Colores distintos para cada carrera */
-body.ri #gridContainer .card { border-left: 6px solid #2e7d32; }
-body.ap #gridContainer .card { border-left: 6px solid #1b5e20; }
-body.cp #gridContainer .card { border-left: 6px solid #388e3c; }
-body.profcp #gridContainer .card { border-left: 6px solid #4caf50; }
-
-footer {
+  background: #d9ead3;
   text-align: center;
-  padding: 1rem;
-  background: #2e7d32;
+  cursor: pointer;
+  box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+}
+.materia.aprobada {
+  background: #6aa84f;
   color: white;
+}
+footer {
+  background: #004d26;
+  color: white;
+  text-align: center;
+  padding: 0.5rem;
 }

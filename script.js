@@ -1,77 +1,79 @@
-// Demo de carreras
-const careers = {
-  ri: [
-    { id: 1, name: "Historia General", correl: [] },
-    { id: 2, name: "Introducción a la Filosofía", correl: [] },
-  ],
-  ap: [
-    { id: 1, name: "Historia General", correl: [] },
-    { id: 2, name: "Elementos de Economía", correl: [] },
-  ],
-  cp: [
-    { id: 1, name: "Historia General", correl: [] },
-    { id: 2, name: "Teoría del Estado", correl: [1] },
-  ],
-  profcp: [
-    { id: 1, name: "Historia General", correl: [] },
-    { id: 2, name: "Pedagogía I", correl: [1] },
-  ]
+const carreras = {
+  ri: {
+    color: "#b6d7a8",
+    materias: [
+      {id:1, nombre:"Historia General", correlativas:[]},
+      {id:2, nombre:"Introducción a la Filosofía", correlativas:[]},
+      {id:3, nombre:"Epistemología de las Ciencias Sociales", correlativas:[]},
+      {id:4, nombre:"Introducción a la Ciencia Política", correlativas:[3]},
+    ]
+  },
+  ap: {
+    color: "#a2c4c9",
+    materias: [
+      {id:1, nombre:"Historia General", correlativas:[]},
+      {id:2, nombre:"Introducción a la Filosofía", correlativas:[]},
+      {id:3, nombre:"Epistemología de las Ciencias Sociales", correlativas:[]},
+      {id:4, nombre:"Introducción a la Ciencia Política", correlativas:[3]},
+    ]
+  },
+  cp: {
+    color: "#ffe599",
+    materias: [
+      {id:1, nombre:"Historia General", correlativas:[]},
+      {id:2, nombre:"Introducción a la Filosofía", correlativas:[]},
+      {id:3, nombre:"Epistemología de las Ciencias Sociales", correlativas:[]},
+      {id:4, nombre:"Introducción a la Ciencia Política", correlativas:[3]},
+    ]
+  },
+  profcp: {
+    color: "#c9daf8",
+    materias: [
+      {id:1, nombre:"Historia General", correlativas:[]},
+      {id:2, nombre:"Introducción a la Filosofía", correlativas:[]},
+      {id:3, nombre:"Epistemología de las Ciencias Sociales", correlativas:[]},
+      {id:4, nombre:"Introducción a la Ciencia Política", correlativas:[3]},
+    ]
+  }
 };
 
-const careerSelect = document.getElementById("careerSelect");
-const gridContainer = document.getElementById("gridContainer");
+let carreraSeleccionada = "ri";
 
-// Guardar progreso por carrera en localStorage
-function getProgress(career) {
-  return JSON.parse(localStorage.getItem("progress_" + career)) || [];
-}
-function saveProgress(career, approved) {
-  localStorage.setItem("progress_" + career, JSON.stringify(approved));
-}
-
-// Renderizar materias
-function renderCareer(careerKey) {
-  document.body.className = careerKey; // cambia color
-  gridContainer.innerHTML = "";
-
-  const subjects = careers[careerKey];
-  const approved = getProgress(careerKey);
-
-  subjects.forEach(subj => {
-    const card = document.createElement("div");
-    card.classList.add("card");
-
-    // Estado: aprobado o bloqueado
-    if (approved.includes(subj.id)) {
-      card.classList.add("approved");
-    } else if (subj.correl.length > 0 && !subj.correl.every(c => approved.includes(c))) {
-      card.classList.add("locked");
-    }
-
-    card.innerHTML = `<strong>${subj.name}</strong>`;
-    
-    // Clic solo si no está bloqueada
-    card.addEventListener("click", () => {
-      if (card.classList.contains("locked")) return;
-      if (approved.includes(subj.id)) {
-        // desmarcar
-        const idx = approved.indexOf(subj.id);
-        approved.splice(idx, 1);
-      } else {
-        approved.push(subj.id);
-      }
-      saveProgress(careerKey, approved);
-      renderCareer(careerKey);
-    });
-
-    gridContainer.appendChild(card);
+function renderMalla() {
+  const malla = document.getElementById("malla");
+  malla.innerHTML = "";
+  const {materias, color} = carreras[carreraSeleccionada];
+  materias.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "materia";
+    div.style.background = m.aprobada ? "#6aa84f" : color;
+    div.textContent = m.nombre;
+    div.onclick = () => toggleAprobada(m.id);
+    malla.appendChild(div);
   });
 }
 
-// Evento cambio de carrera
-careerSelect.addEventListener("change", e => {
-  renderCareer(e.target.value);
+function toggleAprobada(id) {
+  const materias = carreras[carreraSeleccionada].materias;
+  const materia = materias.find(m => m.id === id);
+  materia.aprobada = !materia.aprobada;
+  localStorage.setItem("mallaPYG_" + carreraSeleccionada, JSON.stringify(materias));
+  renderMalla();
+}
+
+function loadData() {
+  Object.keys(carreras).forEach(key => {
+    const data = localStorage.getItem("mallaPYG_" + key);
+    if(data) {
+      carreras[key].materias = JSON.parse(data);
+    }
+  });
+}
+
+document.getElementById("careerSelect").addEventListener("change", e => {
+  carreraSeleccionada = e.target.value;
+  renderMalla();
 });
 
-// Cargar inicial
-renderCareer(careerSelect.value);
+loadData();
+renderMalla();
