@@ -1,59 +1,77 @@
-// Datos mínimos de prueba (solo una materia por carrera)
+// Demo de carreras
 const careers = {
   ri: [
-    { id: 1, name: "Historia General", prereq: [] },
-    { id: 2, name: "Introducción a la Filosofía", prereq: [] },
+    { id: 1, name: "Historia General", correl: [] },
+    { id: 2, name: "Introducción a la Filosofía", correl: [] },
   ],
   ap: [
-    { id: 1, name: "Historia General", prereq: [] },
-    { id: 2, name: "Epistemología de las Ciencias Sociales", prereq: [] },
+    { id: 1, name: "Historia General", correl: [] },
+    { id: 2, name: "Elementos de Economía", correl: [] },
   ],
   cp: [
-    { id: 1, name: "Historia General", prereq: [] },
-    { id: 2, name: "Teoría del Estado", prereq: [1] },
+    { id: 1, name: "Historia General", correl: [] },
+    { id: 2, name: "Teoría del Estado", correl: [1] },
   ],
-  prof: [
-    { id: 1, name: "Historia General", prereq: [] },
-    { id: 2, name: "Pedagogía I", prereq: [1] },
-  ],
+  profcp: [
+    { id: 1, name: "Historia General", correl: [] },
+    { id: 2, name: "Pedagogía I", correl: [1] },
+  ]
 };
 
-const container = document.getElementById("gridContainer");
-const select = document.getElementById("careerSelect");
+const careerSelect = document.getElementById("careerSelect");
+const gridContainer = document.getElementById("gridContainer");
 
-function renderCareer(career) {
-  container.innerHTML = "";
-  const subjects = careers[career];
+// Guardar progreso por carrera en localStorage
+function getProgress(career) {
+  return JSON.parse(localStorage.getItem("progress_" + career)) || [];
+}
+function saveProgress(career, approved) {
+  localStorage.setItem("progress_" + career, JSON.stringify(approved));
+}
+
+// Renderizar materias
+function renderCareer(careerKey) {
+  document.body.className = careerKey; // cambia color
+  gridContainer.innerHTML = "";
+
+  const subjects = careers[careerKey];
+  const approved = getProgress(careerKey);
+
   subjects.forEach(subj => {
-    const div = document.createElement("div");
-    div.className = "subject locked";
-    div.textContent = subj.name;
-    if (subj.prereq.length === 0) {
-      div.classList.remove("locked");
+    const card = document.createElement("div");
+    card.classList.add("card");
+
+    // Estado: aprobado o bloqueado
+    if (approved.includes(subj.id)) {
+      card.classList.add("approved");
+    } else if (subj.correl.length > 0 && !subj.correl.every(c => approved.includes(c))) {
+      card.classList.add("locked");
     }
-    div.addEventListener("click", () => toggleApproval(div, subj, subjects));
-    container.appendChild(div);
+
+    card.innerHTML = `<strong>${subj.name}</strong>`;
+    
+    // Clic solo si no está bloqueada
+    card.addEventListener("click", () => {
+      if (card.classList.contains("locked")) return;
+      if (approved.includes(subj.id)) {
+        // desmarcar
+        const idx = approved.indexOf(subj.id);
+        approved.splice(idx, 1);
+      } else {
+        approved.push(subj.id);
+      }
+      saveProgress(careerKey, approved);
+      renderCareer(careerKey);
+    });
+
+    gridContainer.appendChild(card);
   });
 }
 
-function toggleApproval(div, subj, subjects) {
-  if (div.classList.contains("locked")) return;
-  div.classList.toggle("approved");
-  if (div.classList.contains("approved")) {
-    subjects.forEach(s => {
-      if (s.prereq.includes(subj.id)) {
-        const index = subjects.indexOf(s);
-        container.children[index].classList.remove("locked");
-      }
-    });
-  } else {
-    // No bloqueamos al desmarcar en este prototipo
-  }
-}
-
-select.addEventListener("change", e => {
+// Evento cambio de carrera
+careerSelect.addEventListener("change", e => {
   renderCareer(e.target.value);
 });
 
-// Render inicial
-renderCareer("ri");
+// Cargar inicial
+renderCareer(careerSelect.value);
